@@ -9,7 +9,7 @@ public final class Users {
     private List<User> userList = new ArrayList<>();
 
     public Users(List<User> userList) {
-        this.userList = userList;
+        this.userList = new ArrayList<>(userList);
     }
 
     public Users() {
@@ -31,5 +31,13 @@ public final class Users {
             }
         }
         return null;
+    }
+
+    public String UsersListMessage(int n) {
+        ArrayList<String> usernames = new ArrayList<>();
+        for(int i = 0; i < Math.min(n, userList.size()); i++) {
+            usernames.add(userList.get(i).getUsername());
+        }
+        return "Query result: " + usernames.toString();
     }
 }

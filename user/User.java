@@ -18,6 +18,14 @@ public final class User {
     private final Map<String, Integer> seasonsWithRating = new HashMap<>();
     private final ArrayList<String> moviesWithRating = new ArrayList<>();
 
+    public Map<String, Integer> getSeasonsWithRating() {
+        return seasonsWithRating;
+    }
+
+    public ArrayList<String> getMoviesWithRating() {
+        return moviesWithRating;
+    }
+
     public User(final String username, final String subscriptionType,
                 final Map<String, Integer> history,
                 final ArrayList<String> favoriteMovies) {
@@ -102,6 +110,8 @@ public final class User {
             Serial serial = serials.findSerial(title);
             Season season = serial.getSeasons().get(seasonNumber - 1);
             season.getRatings().add(grade);
+            season.updateSeasonRating(grade);
+            serial.updateSerialRating();
             seasonsWithRating.put(title, seasonNumber);
             return "success -> " + title + " was rated with " + grade + " by " + username;
         } else if (hasSeasonRating(title, seasonNumber)) {
@@ -122,6 +132,7 @@ public final class User {
         if (sawVideo(title) && !hasMovieRating(title)) {
             Movie movie = movies.findMovie(title);
             movie.getRatings().add(grade);
+            movie.updateMovieRating(grade);
             moviesWithRating.add(title);
             return "success -> " + title + " was rated with " + grade + " by " + username;
         } else if (hasMovieRating(title)) {

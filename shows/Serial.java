@@ -1,11 +1,11 @@
 package shows;
 
+import dataset.Users;
 import entertainment.Season;
-import fileio.ShowInput;
 
 import java.util.ArrayList;
 
-public final class Serial extends ShowInput {
+public final class Serial extends Video {
 
     private final int numberOfSeasons;
     private final ArrayList<Season> seasons;
@@ -37,4 +37,23 @@ public final class Serial extends ShowInput {
                 + " numberSeason= " + numberOfSeasons
                 + ", seasons=" + seasons + "\n\n" + '}';
     }
+
+    public void updateSerialRating() {
+        double average = 0;
+        for (Season season : seasons) {
+            average += season.getRating();
+        }
+        average /= seasons.size();
+        this.setRating(average);
+    }
+
+    @Override
+    public int getDuration() {
+        int duration = 0;
+        for (Season season : seasons) {
+            duration += season.getDuration();
+        }
+        return duration;
+    }
+
 }

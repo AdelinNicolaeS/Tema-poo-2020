@@ -1,14 +1,21 @@
 package shows;
 
-import fileio.ShowInput;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Movie extends ShowInput {
+public final class Movie extends Video {
     private final int duration;
 
-    private final List<Double> ratings = new ArrayList<>();
+    private final List<Double> ratings = new ArrayList<>(); // de ce e final??????????????
+    private int numberOfRatings = 0;
+
+    public int getNumberOfRatings() {
+        return numberOfRatings;
+    }
+
+    public void setNumberOfRatings(int numberOfRatings) {
+        this.numberOfRatings = numberOfRatings;
+    }
 
     public List<Double> getRatings() {
         return ratings;
@@ -34,4 +41,11 @@ public final class Movie extends ShowInput {
                 + super.getCast() + " }\n"
                 + "genres {" + super.getGenres() + " }\n ";
     }
+
+
+    public void updateMovieRating(Double grade) {
+        this.setRating((numberOfRatings * this.getRating() + grade) / (numberOfRatings + 1));
+        numberOfRatings++;
+    }
+
 }
