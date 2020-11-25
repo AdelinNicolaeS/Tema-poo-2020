@@ -4,10 +4,7 @@ import actor.*;
 import checker.Checker;
 import checker.Checkstyle;
 import common.Constants;
-import dataset.Actors;
-import dataset.Movies;
-import dataset.Serials;
-import dataset.Users;
+import dataset.*;
 import fileio.*;
 import org.json.simple.JSONArray;
 import shows.*;
@@ -19,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -83,6 +81,7 @@ public final class Main {
         Movies movies = new Movies();
         Serials serials = new Serials();
         Users users = new Users();
+        Videos videos = new Videos();
 
         for (ActorInputData actorInput : input.getActors()) {
             Actor actor = new Actor(actorInput.getName(), actorInput.getCareerDescription(), actorInput.getFilmography(), actorInput.getAwards());
@@ -108,6 +107,8 @@ public final class Main {
         serials.updateFavoriteScore(users);
         movies.updateViewsScores(users);
         serials.updateViewsScore(users);
+        videos.rebuildList(movies, serials);
+
 
         for (ActionInputData actionInputData : input.getCommands()) {
             if (actionInputData.getActionType().equals("command")) {
@@ -118,6 +119,7 @@ public final class Main {
                         arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", user.favoriteMessage(actionInputData.getTitle())));
                         movies.updateFavoriteScore(users);
                         serials.updateFavoriteScore(users);
+                        videos.rebuildList(movies, serials);
                     }
                     case "view" -> {
                         User user = users.findUserByName(actionInputData.getUsername());
@@ -125,6 +127,7 @@ public final class Main {
                         arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", user.viewMessage(actionInputData.getTitle())));
                         movies.updateViewsScores(users);
                         serials.updateViewsScore(users);
+                        videos.rebuildList(movies, serials);
                     }
                     case "rating" -> {
                         User user = users.findUserByName(actionInputData.getUsername());
@@ -252,6 +255,11 @@ public final class Main {
                     arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", usersTmp.UsersListMessage(n)));
                 }
 
+            } else if(actionInputData.getActionType().equals("recommendation")) {
+                if(actionInputData.getType().equals("standard")) {
+                    User userTmp = users.findUserByName(actionInputData.getUsername());
+                    arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.standardRecommendation(userTmp)));
+                }
             }
         }
 
