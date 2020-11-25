@@ -259,6 +259,9 @@ public final class Main {
                 if(actionInputData.getType().equals("standard")) {
                     User userTmp = users.findUserByName(actionInputData.getUsername());
                     arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.standardRecommendation(userTmp)));
+                } else if(actionInputData.getType().equals("best_unseen")) {
+                    User userTmp = users.findUserByName(actionInputData.getUsername());
+                    arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.bestUnseenRecommendation(userTmp)));
                 }
             }
         }
