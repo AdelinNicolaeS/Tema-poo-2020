@@ -108,6 +108,7 @@ public final class Main {
         movies.updateViewsScores(users);
         serials.updateViewsScore(users);
         videos.rebuildList(movies, serials);
+        videos.setPopularGenres(users);
 
 
         for (ActionInputData actionInputData : input.getCommands()) {
@@ -128,6 +129,7 @@ public final class Main {
                         movies.updateViewsScores(users);
                         serials.updateViewsScore(users);
                         videos.rebuildList(movies, serials);
+                        videos.setPopularGenres(users);
                     }
                     case "rating" -> {
                         User user = users.findUserByName(actionInputData.getUsername());
@@ -262,6 +264,11 @@ public final class Main {
                 } else if(actionInputData.getType().equals("best_unseen")) {
                     User userTmp = users.findUserByName(actionInputData.getUsername());
                     arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.bestUnseenRecommendation(userTmp)));
+                } else if(actionInputData.getType().equals("popular")) {
+                    User userTmp = users.findUserByName(actionInputData.getUsername());
+                    if(userTmp.getSubscriptionType().equals("PREMIUM")) {
+                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.popularRecommendation(userTmp)));
+                    }
                 }
             }
         }
