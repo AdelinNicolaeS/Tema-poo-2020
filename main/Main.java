@@ -258,17 +258,18 @@ public final class Main {
                 }
 
             } else if(actionInputData.getActionType().equals("recommendation")) {
+                User userTmp = users.findUserByName(actionInputData.getUsername());
                 if(actionInputData.getType().equals("standard")) {
-                    User userTmp = users.findUserByName(actionInputData.getUsername());
                     arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.standardRecommendation(userTmp)));
                 } else if(actionInputData.getType().equals("best_unseen")) {
-                    User userTmp = users.findUserByName(actionInputData.getUsername());
                     arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.bestUnseenRecommendation(userTmp)));
                 } else if(actionInputData.getType().equals("popular")) {
-                    User userTmp = users.findUserByName(actionInputData.getUsername());
-                    if(userTmp.getSubscriptionType().equals("PREMIUM")) {
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.popularRecommendation(userTmp)));
-                    }
+                    arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.popularRecommendation(userTmp)));
+                } else if(actionInputData.getType().equals("favorite")) {
+                    arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.favoriteRecommandation(userTmp)));
+                } else if(actionInputData.getType().equals("search")) {
+                    String genre = actionInputData.getGenre();
+                    arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.searchRecommandation(userTmp, genre)));
                 }
             }
         }

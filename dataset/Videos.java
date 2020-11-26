@@ -1,11 +1,10 @@
 package dataset;
 
 import shows.Video;
+import shows.ascRatingSort;
 import user.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Videos {
     private ArrayList<Video> videosList = new ArrayList<>();
@@ -92,6 +91,7 @@ public class Videos {
     }
 
     public String popularRecommendation(User user) {
+        if(user.getSubscriptionType().equals("BASIC")) return "PopularRecommendation cannot be applied!";
         String popularTitle = null;
         Videos videos = new Videos(this.videosList, this.popularGenres);
         videos.getVideosList().removeIf((v) -> user.sawVideo((v.getTitle())));
@@ -109,5 +109,36 @@ public class Videos {
         }
         if(findvideo) return ("PopularRecommendation result: " + popularTitle);
         return "PopularRecommendation cannot be applied!";
+    }
+
+    public String favoriteRecommandation(User user) {
+        if(user.getSubscriptionType().equals("BASIC")) return "FavoriteRecommendation cannot be applied!";
+        Videos videos = new Videos(this.videosList);
+        videos.getVideosList().removeIf((v) -> user.sawVideo(v.getTitle()));
+        int maxFavorite = 0;
+        String favoriteTitle = null;
+        for(Video video : videos.getVideosList()) {
+            if(video.getFavorite() > maxFavorite) {
+                maxFavorite = video.getFavorite();
+                favoriteTitle = video.getTitle();
+            }
+        }
+        if(maxFavorite == 0) {
+            return "FavoriteRecommendation cannot be applied!";
+        } else return "FavoriteRecommendation result: " + favoriteTitle;
+    }
+
+    public String searchRecommandation(User user, String genre) {
+        if(user.getSubscriptionType().equals("BASIC")) return "SearchRecommendation cannot be applied!";
+        Videos videos = new Videos(this.videosList);
+        videos.getVideosList().removeIf((v) -> user.sawVideo(v.getTitle()));
+        videos.getVideosList().removeIf((v) -> !v.getGenres().contains(genre));
+        if(videos.getVideosList().isEmpty()) return "SearchRecommendation cannot be applied!";
+        videos.getVideosList().sort(new ascRatingSort());
+        List<String> nameList = new ArrayList<>();
+        for(Video video : videos.getVideosList()) {
+            nameList.add(video.getTitle());
+        }
+        return ("SearchRecommendation result: " + nameList);
     }
 }
