@@ -29,7 +29,11 @@ public final class Actors {
             actor.setRating(movies, serials);
         }
     }
-
+    public void setAllNumberOfAwards() {
+        for(Actor actor : actorsList) {
+            actor.setNumberAwards();
+        }
+    }
     public String nameListMessage(int N) {
         List<String> names = new ArrayList<>();
         for (int i = 0; i < Math.min(N, actorsList.size()); i++) {

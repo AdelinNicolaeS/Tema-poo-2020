@@ -20,8 +20,12 @@ public final class Actor {
         return numberAwards;
     }
 
-    public void setNumberAwards(int numberAwards) {
-        this.numberAwards = numberAwards;
+    public void setNumberAwards() {
+        int sum = 0;
+        for(Map.Entry<ActorsAwards, Integer> entry : awards.entrySet()) {
+            sum += entry.getValue();
+        }
+        this.numberAwards = sum;
     }
 
     public Actor(final String name, final String careerDescription, final ArrayList<String> filmography, final Map<ActorsAwards, Integer> awards) {
@@ -94,7 +98,7 @@ public final class Actor {
     }
 
     public int hasAwards(List<String> awardsList) {
-        int totalAwards = 0, ok = 1;
+        int ok = 1;
         for (String award : awardsList) {
             int s = 0;
             for (Map.Entry<ActorsAwards, Integer> entry : awards.entrySet()) {
@@ -102,17 +106,20 @@ public final class Actor {
                     s += entry.getValue();
                 }
             }
-            if (s == 0) ok = 0;   // ok verifica daca are toate premiile necesare
-            totalAwards += s;
+            if (s == 0) {
+                ok = 0;   // ok verifica daca are toate premiile necesare
+                break;
+            }
         }
-        numberAwards = totalAwards;
-        if (ok == 0) return 0;
-        return totalAwards;
+        return ok;
     }
 
     public boolean descriptionHasWords(List<String> words) {
         for (String word : words) {
-            if (!Pattern.compile(word, Pattern.CASE_INSENSITIVE).matcher(careerDescription).find()) return false;
+            //if (!Pattern.compile(word + " ", Pattern.CASE_INSENSITIVE).matcher(careerDescription).find()) return false;
+            //\W*((?i)rocket(?-i))\W*
+            // (?i)\b(three)\b(?i)
+            if (!Pattern.compile("(?i)\\b(" + word + ")\\b(?i)", Pattern.CASE_INSENSITIVE).matcher(careerDescription).find()) return false;
         }
         return true;
     }

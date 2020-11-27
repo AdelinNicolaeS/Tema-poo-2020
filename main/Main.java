@@ -109,6 +109,7 @@ public final class Main {
         serials.updateViewsScore(users);
         videos.rebuildList(movies, serials);
         videos.setPopularGenres(users);
+        actors.setAllNumberOfAwards();
 
 
         for (ActionInputData actionInputData : input.getCommands()) {
@@ -197,7 +198,7 @@ public final class Main {
 
                     } else if (actionInputData.getCriteria().equals("longest")) {
                         moviesTmp.getMovieList().removeIf((v) -> !v.checkFilters(actionInputData.getFilters()));
-                        Collections.sort(moviesTmp.getMovieList(), new ascDurationSort());
+                        Collections.sort(moviesTmp.getMovieList(), new ascMovieDurationSort());
                         if (actionInputData.getSortType().equals("desc")) {
                             Collections.reverse(moviesTmp.getMovieList());
                         }
@@ -232,7 +233,7 @@ public final class Main {
                         arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", serialsTmp.serialListMessage(N)));
                     } else if (actionInputData.getCriteria().equals("longest")) {
                         serialsTmp.getSerialList().removeIf((v) -> !v.checkFilters(actionInputData.getFilters()));
-                        Collections.sort(serialsTmp.getSerialList(), new ascFavoriteSort());
+                        Collections.sort(serialsTmp.getSerialList(), new ascSerialDurationSort());
                         if (actionInputData.getSortType().equals("desc")) {
                             Collections.reverse(serialsTmp.getSerialList());
                         }

@@ -84,8 +84,7 @@ public abstract class Video {
     public boolean checkFilterYear(List<List<String>> filters) {
         if (filters.get(0).get(0) == null) return true;
         int y = Integer.parseInt(filters.get(0).get(0));
-        if (y != year) return false;
-        return true;
+        return y == year;
     }
 
     public boolean checkFilterGenre(List<List<String>> filters) {
@@ -97,6 +96,7 @@ public abstract class Video {
         return false;
     */
         boolean ok;
+        if(filters.get(1).get(0) == null) return true;
         List<String> genresList = filters.get(1);
         for (String g1 : genresList) {
             ok = false;
