@@ -13,7 +13,7 @@ public final class Movie extends Video {
         return numberOfRatings;
     }
 
-    public void setNumberOfRatings(int numberOfRatings) {
+    public void setNumberOfRatings(final int numberOfRatings) {
         this.numberOfRatings = numberOfRatings;
     }
 
@@ -41,11 +41,12 @@ public final class Movie extends Video {
                 + super.getCast() + " }\n"
                 + "genres {" + super.getGenres() + " }\n ";
     }
-
-
-    public void updateMovieRating(Double grade) {
+    /**
+     *
+     * @param grade
+     */
+    public void updateMovieRating(final Double grade) {
         this.setRating((numberOfRatings * this.getRating() + grade) / (numberOfRatings + 1));
         numberOfRatings++;
     }
-
 }

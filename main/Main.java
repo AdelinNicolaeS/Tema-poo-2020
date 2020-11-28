@@ -1,13 +1,29 @@
 package main;
 
-import actor.*;
+import actor.AwardSortActor;
+import actor.NameSortActor;
+import actor.SortByRating;
 import checker.Checker;
 import checker.Checkstyle;
 import common.Constants;
-import dataset.*;
-import fileio.*;
+import dataset.Actors;
+import dataset.Users;
+import dataset.DataCenter;
+import dataset.Serials;
+import dataset.Movies;
+import fileio.ActionInputData;
+import fileio.Input;
+import fileio.InputLoader;
+import fileio.Writer;
 import org.json.simple.JSONArray;
-import shows.*;
+import shows.FavoriteSort;
+
+import shows.MovieDurationSort;
+import shows.RatingSort;
+
+import shows.SerialDurationSort;
+
+import shows.ViewsSort;
 import user.User;
 import user.UsersSort;
 
@@ -16,8 +32,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -77,204 +93,142 @@ public final class Main {
         JSONArray arrayResult = new JSONArray();
 
         //TODO add here the entry point to your implementation
-        Actors actors = new Actors();
-        Movies movies = new Movies();
-        Serials serials = new Serials();
-        Users users = new Users();
-        Videos videos = new Videos();
+        DataCenter dataCenter = new DataCenter();
+        dataCenter.initializeData(input);
+        dataCenter.calculateNewFields();
 
-        for (ActorInputData actorInput : input.getActors()) {
-            Actor actor = new Actor(actorInput.getName(), actorInput.getCareerDescription(), actorInput.getFilmography(), actorInput.getAwards());
-            actors.getActorsList().add(actor);
-        }
-        for (MovieInputData movieInput : input.getMovies()) {
-            Movie movie = new Movie(movieInput.getTitle(), movieInput.getCast(), movieInput.getGenres(), movieInput.getYear(), movieInput.getDuration());
-            movies.getMovieList().add(movie);
-        }
-        for (SerialInputData serialInputData : input.getSerials()) {
-            Serial serial = new Serial(serialInputData.getTitle(), serialInputData.getCast(), serialInputData.getGenres(), serialInputData.getNumberSeason(), serialInputData.getSeasons(), serialInputData.getYear());
-            serials.getSerialList().add(serial);
-        }
-        for (UserInputData userInputData : input.getUsers()) {
-            User user = new User(userInputData.getUsername(),
-                    userInputData.getSubscriptionType(),
-                    userInputData.getHistory(),
-                    userInputData.getFavoriteMovies());
-            users.getUserList().add(user);
-        }
-
-        movies.updateFavoriteScore(users);
-        serials.updateFavoriteScore(users);
-        movies.updateViewsScores(users);
-        serials.updateViewsScore(users);
-        videos.rebuildList(movies, serials);
-        videos.setPopularGenres(users);
-        actors.setAllNumberOfAwards();
-
-
-        for (ActionInputData actionInputData : input.getCommands()) {
-            if (actionInputData.getActionType().equals("command")) {
-                switch (actionInputData.getType()) {
-                    case "favorite" -> {
-                        User user = users.findUserByName(actionInputData.getUsername());
-                        assert user != null;
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", user.favoriteMessage(actionInputData.getTitle())));
-                        movies.updateFavoriteScore(users);
-                        serials.updateFavoriteScore(users);
-                        videos.rebuildList(movies, serials);
+        for (ActionInputData action : input.getCommands()) {
+            int id = action.getActionId();
+            String message;
+            if (action.getActionType().equals("command")) {
+                User user = dataCenter.getUsers().findUserByName(action.getUsername());
+                if (action.getType().equals("favorite")) {
+                    message = user.favoriteMessage(action.getTitle());
+                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                    dataCenter.calculateNewFields();
+                } else if (action.getType().equals("view")) {
+                    message = user.viewMessage(action.getTitle());
+                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                    dataCenter.calculateNewFields();
+                } else if (action.getType().equals("rating")) {
+                    String title = action.getTitle();
+                    if (action.getSeasonNumber() != 0) {
+                        Integer seasonNumber = action.getSeasonNumber();
+                        message = user.ratingSeason(title,
+                                                    seasonNumber,
+                                                    action.getGrade(),
+                                                    dataCenter.getSerials());
+                        arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                    } else {
+                        message = user.ratingMovie(title,
+                                                   action.getGrade(),
+                                                   dataCenter.getMovies());
+                        arrayResult.add(fileWriter.writeFile(id, "csf", message));
                     }
-                    case "view" -> {
-                        User user = users.findUserByName(actionInputData.getUsername());
-                        assert user != null;
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", user.viewMessage(actionInputData.getTitle())));
-                        movies.updateViewsScores(users);
-                        serials.updateViewsScore(users);
-                        videos.rebuildList(movies, serials);
-                        videos.setPopularGenres(users);
-                    }
-                    case "rating" -> {
-                        User user = users.findUserByName(actionInputData.getUsername());
-                        String title = actionInputData.getTitle();
-                        assert user != null;
-                        if (actionInputData.getSeasonNumber() != 0) {
-                            Integer seasonNumber = actionInputData.getSeasonNumber();
-                            arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", user.ratingSeasonMessage(title, seasonNumber, actionInputData.getGrade(), serials)));
-                        } else {
-                            arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", user.ratingMovieMessage(title, actionInputData.getGrade(), movies)));
-                        }
-                        actors.updateRatings(movies, serials);
-                    }
-                    default -> {
-                        break;
-                    }
+                    dataCenter.getActors().updateRatings(dataCenter.getMovies(),
+                                                         dataCenter.getSerials());
                 }
-            } else if (actionInputData.getActionType().equals("query")) {
-                if (actionInputData.getObjectType().equals("actors")) {
-                    if (actionInputData.getCriteria().equals("average")) {
-                        int N = actionInputData.getNumber();
-                        Actors actorsTmp = new Actors(actors.getActorsList());
-                        actorsTmp.getActorsList().removeIf((v) -> v.getRating() == 0);
-                        Collections.sort(actorsTmp.getActorsList(), new ascSortByRating());
-                        if (actionInputData.getSortType().equals("desc")) {
-                            Collections.reverse(actorsTmp.getActorsList());
-                        }
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", actorsTmp.nameListMessage(N)));
-                    } else if (actionInputData.getCriteria().equals("awards")) {
-                        Actors actorsTmp = new Actors(actors.getActorsList());
-                        actorsTmp.getActorsList().removeIf((v) -> v.hasAwards(actionInputData.getFilters().get(3)) == 0);
-                        Collections.sort(actorsTmp.getActorsList(), new ascAwardSortActor());
-                        if (actionInputData.getSortType().equals("desc")) {
-                            Collections.reverse(actorsTmp.getActorsList());
-                        }
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", actorsTmp.nameListMessage(actorsTmp.getActorsList().size())));
-                    } else if (actionInputData.getCriteria().equals("filter_description")) {
-                        Actors actorsTmp = new Actors(actors.getActorsList());
-                        actorsTmp.getActorsList().removeIf((v) -> !v.descriptionHasWords(actionInputData.getFilters().get(2)));
-                        Collections.sort(actorsTmp.getActorsList(), new ascNameSortActor());
-                        if (actionInputData.getSortType().equals("desc")) {
-                            Collections.reverse(actorsTmp.getActorsList());
-                        }
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", actorsTmp.nameListMessage(actorsTmp.getActorsList().size())));
-                    }
-                } else if (actionInputData.getObjectType().equals("movies")) {
-                    int N = actionInputData.getNumber();
-                    Movies moviesTmp = new Movies(movies.getMovieList());
-                    if (actionInputData.getCriteria().equals("ratings")) {
-                        moviesTmp.getMovieList().removeIf((v) -> v.getRating() == 0);
-                        moviesTmp.getMovieList().removeIf((v) -> !v.checkFilters(actionInputData.getFilters()));
-                        Collections.sort(moviesTmp.getMovieList(), new ascRatingSort());
-                        if (actionInputData.getSortType().equals("desc")) {
-                            Collections.reverse(moviesTmp.getMovieList());
-                        }
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", moviesTmp.movieListMessage(N)));
-                    } else if (actionInputData.getCriteria().equals("favorite")) {
-                        moviesTmp.getMovieList().removeIf((v) -> v.getFavorite() == 0);
-                        moviesTmp.getMovieList().removeIf((v) -> !v.checkFilters(actionInputData.getFilters()));
-                        Collections.sort(moviesTmp.getMovieList(), new ascFavoriteSort());
-                        if (actionInputData.getSortType().equals("desc")) {
-                            Collections.reverse(moviesTmp.getMovieList());
-                        }
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", moviesTmp.movieListMessage(N)));
 
-                    } else if (actionInputData.getCriteria().equals("longest")) {
-                        moviesTmp.getMovieList().removeIf((v) -> !v.checkFilters(actionInputData.getFilters()));
-                        Collections.sort(moviesTmp.getMovieList(), new ascMovieDurationSort());
-                        if (actionInputData.getSortType().equals("desc")) {
-                            Collections.reverse(moviesTmp.getMovieList());
-                        }
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", moviesTmp.movieListMessage(N)));
-                    } else if(actionInputData.getCriteria().equals("most_viewed")) {
-                        moviesTmp.getMovieList().removeIf((v) -> !v.checkFilters(actionInputData.getFilters()));
+            } else if (action.getActionType().equals("query")) {
+                if (action.getObjectType().equals("actors")) {
+                    int number;
+                    Actors actorsTmp = new Actors(dataCenter.getActors().getActorsList());
+                    if (action.getCriteria().equals("average")) {
+                        number = action.getNumber();
+                    } else {
+                        number = actorsTmp.getActorsList().size();
+                    }
+                    if (action.getCriteria().equals("average")) {
+                        actorsTmp.getActorsList().removeIf((v) -> v.getRating() == 0);
+                        actorsTmp.getActorsList().sort(new SortByRating());
+                    } else if (action.getCriteria().equals("awards")) {
+                        List<String> awardsList;
+                        awardsList = action.getFilters().get(action.getFilters().size() - 1);
+                        actorsTmp.getActorsList().removeIf((v) -> v.hasAwards(awardsList) == 0);
+                        actorsTmp.getActorsList().sort(new AwardSortActor());
+                    } else if (action.getCriteria().equals("filter_description")) {
+                        List<String> list = action.getFilters().get(2);
+                        actorsTmp.getActorsList().removeIf((v) -> !v.descriptionHasWords(list));
+                        actorsTmp.getActorsList().sort(new NameSortActor());
+                    }
+                    if (action.getSortType().equals("desc")) {
+                        Collections.reverse(actorsTmp.getActorsList());
+                    }
+                    message = actorsTmp.nameListMessage(number);
+                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                } else if (action.getObjectType().equals("movies")) {
+                    Movies moviesTmp = new Movies(dataCenter.getMovies().getMovieList());
+                    moviesTmp.getMovieList().removeIf((v) -> !v.checkFilters(action.getFilters()));
+                    if (action.getCriteria().equals("ratings")) {
+                        moviesTmp.getMovieList().removeIf((v) -> v.getRating() == 0);
+                        moviesTmp.getMovieList().sort(new RatingSort());
+                    } else if (action.getCriteria().equals("favorite")) {
+                        moviesTmp.getMovieList().removeIf((v) -> v.getFavorite() == 0);
+                        moviesTmp.getMovieList().sort(new FavoriteSort());
+                    } else if (action.getCriteria().equals("longest")) {
+                        moviesTmp.getMovieList().sort(new MovieDurationSort());
+                    } else if (action.getCriteria().equals("most_viewed")) {
                         moviesTmp.getMovieList().removeIf((v) -> v.getViews() == 0);
-                        Collections.sort(moviesTmp.getMovieList(), new ascViewsSort());
-                        if (actionInputData.getSortType().equals("desc")) {
-                            Collections.reverse(moviesTmp.getMovieList());
-                        }
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", moviesTmp.movieListMessage(N)));
+                        moviesTmp.getMovieList().sort(new ViewsSort());
                     }
-                } else if (actionInputData.getObjectType().equals("shows")) {
-                    int N = actionInputData.getNumber();
-                    Serials serialsTmp = new Serials(serials.getSerialList());
-                    if (actionInputData.getCriteria().equals("ratings")) {
+                    if (action.getSortType().equals("desc")) {
+                        Collections.reverse(moviesTmp.getMovieList());
+                    }
+                    message = moviesTmp.movieListMessage(action.getNumber());
+                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                } else if (action.getObjectType().equals("shows")) {
+                    Serials serialsTmp = new Serials(dataCenter.getSerials().getSerialList());
+                    List<List<String>> filter = action.getFilters();
+                    serialsTmp.getSerialList().removeIf(((v) -> !v.checkFilters(filter)));
+                    if (action.getCriteria().equals("ratings")) {
                         serialsTmp.getSerialList().removeIf((v) -> v.getRating() == 0);
-                        serialsTmp.getSerialList().removeIf((v) -> !v.checkFilters(actionInputData.getFilters()));
-                        Collections.sort(serialsTmp.getSerialList(), new ascRatingSort());
-                        if (actionInputData.getSortType().equals("desc")) {
-                            Collections.reverse(serialsTmp.getSerialList());
-                        }
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", serialsTmp.serialListMessage(N)));
-                    } else if (actionInputData.getCriteria().equals("favorite")) {
+                        serialsTmp.getSerialList().sort(new RatingSort());
+                    } else if (action.getCriteria().equals("favorite")) {
                         serialsTmp.getSerialList().removeIf((v) -> v.getFavorite() == 0);
-                        serialsTmp.getSerialList().removeIf((v) -> !v.checkFilters(actionInputData.getFilters()));
-                        Collections.sort(serialsTmp.getSerialList(), new ascFavoriteSort());
-                        if (actionInputData.getSortType().equals("desc")) {
-                            Collections.reverse(serialsTmp.getSerialList());
-                        }
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", serialsTmp.serialListMessage(N)));
-                    } else if (actionInputData.getCriteria().equals("longest")) {
-                        serialsTmp.getSerialList().removeIf((v) -> !v.checkFilters(actionInputData.getFilters()));
-                        Collections.sort(serialsTmp.getSerialList(), new ascSerialDurationSort());
-                        if (actionInputData.getSortType().equals("desc")) {
-                            Collections.reverse(serialsTmp.getSerialList());
-                        }
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", serialsTmp.serialListMessage(N)));
-                    } else if(actionInputData.getCriteria().equals("most_viewed")) {
+                        serialsTmp.getSerialList().sort(new FavoriteSort());
+                    } else if (action.getCriteria().equals("longest")) {
+                        serialsTmp.getSerialList().sort(new SerialDurationSort());
+                    } else if (action.getCriteria().equals("most_viewed")) {
                         serialsTmp.getSerialList().removeIf((v) -> v.getViews() == 0);
-                        serialsTmp.getSerialList().removeIf(((v) -> !v.checkFilters(actionInputData.getFilters())));
-                        Collections.sort(serialsTmp.getSerialList(), new ascViewsSort());
-                        if (actionInputData.getSortType().equals("desc")) {
-                            Collections.reverse(serialsTmp.getSerialList());
-                        }
-                        arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", serialsTmp.serialListMessage(N)));
+                        serialsTmp.getSerialList().sort(new ViewsSort());
                     }
-                } else if(actionInputData.getObjectType().equals("users") && actionInputData.getCriteria().equals("num_ratings")) {
-                    Users usersTmp = new Users(users.getUserList());
-                    int n = actionInputData.getNumber();
-                    usersTmp.getUserList().removeIf((v) -> v.getSeasonsWithRating().size() + v.getMoviesWithRating().size() == 0);
-                    Collections.sort(usersTmp.getUserList(), new UsersSort());
-                    if(actionInputData.getSortType().equals("desc")) {
+                    if (action.getSortType().equals("desc")) {
+                        Collections.reverse(serialsTmp.getSerialList());
+                    }
+                    message = serialsTmp.serialListMessage(action.getNumber());
+                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                } else if (action.getObjectType().equals("users")) {
+                    Users usersTmp = new Users(dataCenter.getUsers().getUserList());
+                    usersTmp.getUserList().removeIf((v) -> v.getNumberRatings() == 0);
+                    usersTmp.getUserList().sort(new UsersSort());
+                    if (action.getSortType().equals("desc")) {
                         Collections.reverse(usersTmp.getUserList());
                     }
-                    arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", usersTmp.UsersListMessage(n)));
+                    message = usersTmp.usersListMessage(action.getNumber());
+                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
                 }
 
-            } else if(actionInputData.getActionType().equals("recommendation")) {
-                User userTmp = users.findUserByName(actionInputData.getUsername());
-                if(actionInputData.getType().equals("standard")) {
-                    arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.standardRecommendation(userTmp)));
-                } else if(actionInputData.getType().equals("best_unseen")) {
-                    arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.bestUnseenRecommendation(userTmp)));
-                } else if(actionInputData.getType().equals("popular")) {
-                    arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.popularRecommendation(userTmp)));
-                } else if(actionInputData.getType().equals("favorite")) {
-                    arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.favoriteRecommandation(userTmp)));
-                } else if(actionInputData.getType().equals("search")) {
-                    String genre = actionInputData.getGenre();
-                    arrayResult.add(fileWriter.writeFile(actionInputData.getActionId(), "csf", videos.searchRecommandation(userTmp, genre)));
+            } else if (action.getActionType().equals("recommendation")) {
+                User userTmp = dataCenter.getUsers().findUserByName(action.getUsername());
+                if (action.getType().equals("standard")) {
+                    message =  dataCenter.getVideos().standardRecommendation(userTmp);
+                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                } else if (action.getType().equals("best_unseen")) {
+                    message = dataCenter.getVideos().bestUnseenRecommendation(userTmp);
+                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                } else if (action.getType().equals("popular")) {
+                    message = dataCenter.getVideos().popularRecommendation(userTmp);
+                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                } else if (action.getType().equals("favorite")) {
+                    message = dataCenter.getVideos().favoriteRecommandation(userTmp);
+                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                } else if (action.getType().equals("search")) {
+                    String genre = action.getGenre();
+                    message = dataCenter.getVideos().searchRecommandation(userTmp, genre);
+                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
                 }
             }
         }
-
         fileWriter.closeJSON(arrayResult);
     }
 }

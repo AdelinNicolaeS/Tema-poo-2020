@@ -26,19 +26,11 @@ public final class Season {
 
     private double rating = 0;
 
-    public int getNumberOfRatings() {
-        return numberOfRatings;
-    }
-
-    public void setNumberOfRatings(int numberOfRatings) {
-        this.numberOfRatings = numberOfRatings;
-    }
-
     public double getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(final double rating) {
         this.rating = rating;
     }
 
@@ -46,10 +38,6 @@ public final class Season {
         this.currentSeason = currentSeason;
         this.duration = duration;
         this.ratings = new ArrayList<>();
-    }
-
-    public int getCurrentSeason() {
-        return currentSeason;
     }
 
     public int getDuration() {
@@ -78,27 +66,13 @@ public final class Season {
                 + '}';
     }
 
-    public Double averageSeasonRating() {
-        Double average = (double) 0;
-        for (Double i : ratings) {
-            average += i;
-        }
-        average /= ratings.size();
-        return average;
-    }
-
-    public void updateSeasonRating(double grade) {
+    /**
+     *
+     * @param grade
+     */
+    public void updateSeasonRating(final double grade) {
         rating = (numberOfRatings * rating + grade) / (numberOfRatings + 1);
         numberOfRatings++;
-
-        /*double average = 0;
-        for(Double value : ratings) {
-            average += value;
-        }
-        average /= ratings.size();
-        rating = average;
-        System.out.println("fucking rating este " + rating);
-    }*/
     }
 }
 

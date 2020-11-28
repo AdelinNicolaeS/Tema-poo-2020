@@ -1,6 +1,5 @@
 package shows;
 
-import dataset.Users;
 import entertainment.Season;
 
 import java.util.ArrayList;
@@ -38,6 +37,9 @@ public final class Serial extends Video {
                 + ", seasons=" + seasons + "\n\n" + '}';
     }
 
+    /**
+     *
+     */
     public void updateSerialRating() {
         double average = 0;
         for (Season season : seasons) {

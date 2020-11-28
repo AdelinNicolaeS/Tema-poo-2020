@@ -8,7 +8,7 @@ import java.util.List;
 public final class Serials {
     private List<Serial> serialList = new ArrayList<>();
 
-    public Serials(List<Serial> serialList) {
+    public Serials(final List<Serial> serialList) {
         this.serialList = new ArrayList<>(serialList);
     }
 
@@ -19,11 +19,12 @@ public final class Serials {
         return serialList;
     }
 
-    public void setSerialList(List<Serial> serialList) {
-        this.serialList = serialList;
-    }
-
-    public Serial findSerial(String title) {
+    /**
+     *
+     * @param title
+     * @return
+     */
+    public Serial findSerial(final String title) {
         for (Serial serial : serialList) {
             if (serial.getTitle().equals(title)) {
                 return serial;
@@ -32,21 +33,35 @@ public final class Serials {
         return null;
     }
 
-    public String serialListMessage(int N) {
+    /**
+     *
+     * @param n
+     * @return
+     */
+    public String serialListMessage(final int n) {
         List<String> names = new ArrayList<>();
-        for (int i = 0; i < Math.min(N, serialList.size()); i++) {
+        for (int i = 0; i < Math.min(n, serialList.size()); i++) {
             names.add(serialList.get(i).getTitle());
         }
         return "Query result: " + names.toString();
     }
 
-    public void updateFavoriteScore(Users users) {
+    /**
+     *
+     * @param users
+     */
+    public void updateFavoriteScore(final Users users) {
         for (Serial serial : serialList) {
             serial.setFavoriteScore(users);
         }
     }
-    public void updateViewsScore(Users users) {
-        for(Serial serial : serialList) {
+
+    /**
+     *
+     * @param users
+     */
+    public void updateViewsScore(final Users users) {
+        for (Serial serial : serialList) {
             serial.setViewsScore(users);
         }
     }

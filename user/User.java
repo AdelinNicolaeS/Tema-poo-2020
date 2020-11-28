@@ -60,21 +60,47 @@ public final class User {
                 + favoriteMovies + '}';
     }
 
-    public boolean sawVideo(String title) {
+    /**
+     *
+     * @return
+     */
+    public int getNumberRatings() {
+        return seasonsWithRating.size() + moviesWithRating.size();
+    }
+    /**
+     *
+     * @param title
+     * @return
+     */
+    public boolean sawVideo(final String title) {
         for (Map.Entry<String, Integer> entry : history.entrySet()) {
-            if (entry.getKey().equals(title)) return true;
+            if (entry.getKey().equals(title)) {
+                return true;
+            }
         }
         return false;
     }
 
-    public boolean hasFavoriteAlready(String title) {
+    /**
+     *
+     * @param title
+     * @return
+     */
+    public boolean hasFavoriteAlready(final String title) {
         for (String parser : favoriteMovies) {
-            if (parser.equals(title)) return true;
+            if (parser.equals(title)) {
+                return true;
+            }
         }
         return false;
     }
 
-    public String favoriteMessage(String title) {
+    /**
+     *
+     * @param title
+     * @return
+     */
+    public String favoriteMessage(final String title) {
         String message = "";
         if (sawVideo(title) && !hasFavoriteAlready(title)) {
             favoriteMovies.add(title);
@@ -87,7 +113,12 @@ public final class User {
         return message;
     }
 
-    public String viewMessage(String title) {
+    /**
+     *
+     * @param title
+     * @return
+     */
+    public String viewMessage(final String title) {
         if (sawVideo(title)) {
             history.put(title, history.get(title) + 1);
         } else {
@@ -96,7 +127,13 @@ public final class User {
         return "success -> " + title + " was viewed with total views of " + history.get(title);
     }
 
-    public boolean hasSeasonRating(String title, Integer seasonNumber) {
+    /**
+     *
+     * @param title
+     * @param seasonNumber
+     * @return
+     */
+    public boolean hasSeasonRating(final String title, final Integer seasonNumber) {
         for (Map.Entry<String, Integer> entry : seasonsWithRating.entrySet()) {
             if (entry.getKey().equals(title) && entry.getValue().equals(seasonNumber)) {
                 return true;
@@ -105,7 +142,18 @@ public final class User {
         return false;
     }
 
-    public String ratingSeasonMessage(String title, Integer seasonNumber, double grade, Serials serials) {
+    /**
+     *
+     * @param title
+     * @param seasonNumber
+     * @param grade
+     * @param serials
+     * @return
+     */
+    public String ratingSeason(final String title,
+                                      final Integer seasonNumber,
+                                      final double grade,
+                                      final Serials serials) {
         if (sawVideo(title) && !hasSeasonRating(title, seasonNumber)) {
             Serial serial = serials.findSerial(title);
             Season season = serial.getSeasons().get(seasonNumber - 1);
@@ -121,14 +169,28 @@ public final class User {
         }
     }
 
-    public boolean hasMovieRating(String title) {
+    /**
+     *
+     * @param title
+     * @return
+     */
+    public boolean hasMovieRating(final String title) {
         for (String string : moviesWithRating) {
-            if (string.equals(title)) return true;
+            if (string.equals(title)) {
+                return true;
+            }
         }
         return false;
     }
 
-    public String ratingMovieMessage(String title, double grade, Movies movies) {
+    /**
+     *
+     * @param title
+     * @param grade
+     * @param movies
+     * @return
+     */
+    public String ratingMovie(final String title, final double grade, final Movies movies) {
         if (sawVideo(title) && !hasMovieRating(title)) {
             Movie movie = movies.findMovie(title);
             movie.getRatings().add(grade);

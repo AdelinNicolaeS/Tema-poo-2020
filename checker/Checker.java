@@ -113,16 +113,16 @@ public final class Checker {
                     if (inputDir[i].getName().contains(Constants.LARGE)
                             || inputDir[i].getName().contains(Constants.NO_VALUES)) {
                         System.out.println(inputDir[i].getName()
-                                + s
-                                + "PASSED (+"
-                                + Constants.LARGE_TEST
-                                + ")");
+                                                   + s
+                                                   + "PASSED (+"
+                                                   + Constants.LARGE_TEST
+                                                   + ")");
                         score += Constants.LARGE_TEST;
                     } else {
                         System.out.println(inputDir[i].getName()
-                                + s
-                                + "PASSED (+"
-                                + Constants.SINGLE_TEST + ")");
+                                                   + s
+                                                   + "PASSED (+"
+                                                   + Constants.SINGLE_TEST + ")");
                         score += Constants.SINGLE_TEST;
                     }
                 } else {
@@ -130,8 +130,8 @@ public final class Checker {
                     Arrays.fill(chars, ' ');
                     String s = new String(chars);
                     System.out.println(inputDir[i].getName()
-                            + s
-                            + "FAILED (+0)");
+                                               + s
+                                               + "FAILED (+0)");
                 }
             }
         }

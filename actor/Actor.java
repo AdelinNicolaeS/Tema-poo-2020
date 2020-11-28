@@ -20,21 +20,26 @@ public final class Actor {
         return numberAwards;
     }
 
+    /**
+     *
+     */
     public void setNumberAwards() {
         int sum = 0;
-        for(Map.Entry<ActorsAwards, Integer> entry : awards.entrySet()) {
+        for (Map.Entry<ActorsAwards, Integer> entry : awards.entrySet()) {
             sum += entry.getValue();
         }
         this.numberAwards = sum;
     }
 
-    public Actor(final String name, final String careerDescription, final ArrayList<String> filmography, final Map<ActorsAwards, Integer> awards) {
+    public Actor(final String name,
+                 final String careerDescription,
+                 final ArrayList<String> filmography,
+                 final Map<ActorsAwards, Integer> awards) {
         this.name = name;
         this.careerDescription = careerDescription;
         this.filmography = filmography;
         this.awards = awards;
     }
-
 
     public String getName() {
         return name;
@@ -56,10 +61,6 @@ public final class Actor {
         return awards;
     }
 
-    public String getCareerDescription() {
-        return careerDescription;
-    }
-
     public void setCareerDescription(final String careerDescription) {
         this.careerDescription = careerDescription;
     }
@@ -73,16 +74,24 @@ public final class Actor {
                 + ", filmography=" + filmography + '}';
     }
 
-    public void setRating(Movies movies, Serials serials) {
+    /**
+     *
+     * @param movies
+     * @param serials
+     */
+    public void setRating(final Movies movies, final Serials serials) {
         double average = 0;
         int count = 0;
         for (String video : filmography) {
             if (movies.findMovie(video) != null && movies.findMovie(video).getRating() > 0) {
                 average += movies.findMovie(video).getRating();
                 count++;
-            } else if (serials.findSerial(video) != null && serials.findSerial(video).getRating() > 0) {
-                average += serials.findSerial(video).getRating();
-                count++;
+            } else {
+                boolean x1 = (serials.findSerial(video) != null);
+                if (x1 && serials.findSerial(video).getRating() > 0) {
+                    average += serials.findSerial(video).getRating();
+                    count++;
+                }
             }
         }
         if (count == 0) {
@@ -97,7 +106,12 @@ public final class Actor {
         return rating;
     }
 
-    public int hasAwards(List<String> awardsList) {
+    /**
+     *
+     * @param awardsList
+     * @return
+     */
+    public int hasAwards(final List<String> awardsList) {
         int ok = 1;
         for (String award : awardsList) {
             int s = 0;
@@ -114,12 +128,18 @@ public final class Actor {
         return ok;
     }
 
-    public boolean descriptionHasWords(List<String> words) {
+    /**
+     *
+     * @param words
+     * @return
+     */
+    public boolean descriptionHasWords(final List<String> words) {
         for (String word : words) {
-            //if (!Pattern.compile(word + " ", Pattern.CASE_INSENSITIVE).matcher(careerDescription).find()) return false;
-            //\W*((?i)rocket(?-i))\W*
-            // (?i)\b(three)\b(?i)
-            if (!Pattern.compile("(?i)\\b(" + word + ")\\b(?i)", Pattern.CASE_INSENSITIVE).matcher(careerDescription).find()) return false;
+            Pattern pattern;
+            pattern = Pattern.compile("(?i)\\b(" + word + ")\\b(?i)", Pattern.CASE_INSENSITIVE);
+            if (!pattern.matcher(careerDescription).find()) {
+                return false;
+            }
         }
         return true;
     }

@@ -1,7 +1,6 @@
 package dataset;
 
 import shows.Movie;
-import user.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.List;
 public final class Movies {
     private List<Movie> movieList = new ArrayList<>();
 
-    public Movies(List<Movie> movieList) {
+    public Movies(final List<Movie> movieList) {
         this.movieList = new ArrayList<>(movieList);
     }
 
@@ -21,32 +20,53 @@ public final class Movies {
         return movieList;
     }
 
-    public void setMovieList(List<Movie> movieList) {
+    public void setMovieList(final List<Movie> movieList) {
         this.movieList = movieList;
     }
 
-    public Movie findMovie(String title) {
+    /**
+     *
+     * @param title
+     * @return
+     */
+    public Movie findMovie(final String title) {
         for (Movie movie : movieList) {
-            if (movie.getTitle().equals(title)) return movie;
+            if (movie.getTitle().equals(title)) {
+                return movie;
+            }
         }
         return null;
     }
 
-    public String movieListMessage(int N) {
+    /**
+     *
+     * @param n
+     * @return
+     */
+    public String movieListMessage(final int n) {
         List<String> names = new ArrayList<>();
-        for (int i = 0; i < Math.min(N, movieList.size()); i++) {
+        for (int i = 0; i < Math.min(n, movieList.size()); i++) {
             names.add(movieList.get(i).getTitle());
         }
         return "Query result: " + names.toString();
     }
 
-    public void updateFavoriteScore(Users users) {
+    /**
+     *
+     * @param users
+     */
+    public void updateFavoriteScore(final Users users) {
         for (Movie movie : movieList) {
             movie.setFavoriteScore(users);
         }
     }
-    public void updateViewsScores(Users users){
-        for(Movie movie : movieList){
+
+    /**
+     *
+     * @param users
+     */
+    public void updateViewsScores(final Users users) {
+        for (Movie movie : movieList) {
             movie.setViewsScore(users);
         }
     }

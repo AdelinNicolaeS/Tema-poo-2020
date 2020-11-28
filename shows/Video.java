@@ -10,15 +10,15 @@ public abstract class Video {
     /**
      * Show's title
      */
-    private final String title;
+    private String title;
     /**
      * The year the show was released
      */
-    private final int year;
+    private int year;
     /**
      * Show casting
      */
-    private final ArrayList<String> cast;
+    private ArrayList<String> cast;
     /**
      * Show genres
      */
@@ -27,36 +27,67 @@ public abstract class Video {
     private int favorite = 0;
     private int views = 0;
 
+    /**
+     *
+     * @return
+     */
     public int getViews() {
         return views;
     }
 
-    public void setViewsScore(Users users) {
+    /**
+     *
+     * @param users
+     */
+    public void setViewsScore(final Users users) {
         int value = 0;
-        for(User user : users.getUserList()) {
-            if(user.getHistory().get(title) != null) {
+        for (User user : users.getUserList()) {
+            if (user.getHistory().get(title) != null) {
                 value += user.getHistory().get(title);
             }
         }
         views = value;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getFavorite() {
         return favorite;
     }
 
-    public void setFavorite(int favorite) {
+    /**
+     *
+     * @param favorite
+     */
+    public void setFavorite(final int favorite) {
         this.favorite = favorite;
     }
 
+    /**
+     *
+     * @return
+     */
     public double getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    /**
+     *
+     * @param rating
+     */
+    public void setRating(final double rating) {
         this.rating = rating;
     }
 
+    /**
+     *
+     * @param title
+     * @param year
+     * @param cast
+     * @param genres
+     */
     public Video(final String title, final int year,
                  final ArrayList<String> cast, final ArrayList<String> genres) {
         this.title = title;
@@ -65,38 +96,61 @@ public abstract class Video {
         this.genres = genres;
     }
 
+    /**
+     *
+     * @return
+     */
     public final String getTitle() {
         return title;
     }
 
+    /**
+     *
+     * @return
+     */
     public final int getYear() {
         return year;
     }
 
+    /**
+     *
+     * @return
+     */
     public final ArrayList<String> getCast() {
         return cast;
     }
 
+    /**
+     *
+     * @return
+     */
     public final ArrayList<String> getGenres() {
         return genres;
     }
 
-    public boolean checkFilterYear(List<List<String>> filters) {
-        if (filters.get(0).get(0) == null) return true;
+    /**
+     *
+     * @param filters
+     * @return
+     */
+    public boolean checkFilterYear(final List<List<String>> filters) {
+        if (filters.get(0).get(0) == null) {
+            return true;
+        }
         int y = Integer.parseInt(filters.get(0).get(0));
         return y == year;
     }
 
-    public boolean checkFilterGenre(List<List<String>> filters) {
-        /*if(filters.get(1).get(0) == null) return true;
-        String g = filters.get(1).get(0);
-        for(String genre : genres) {
-            if(Objects.equals(g, genre)) return true;
-        }
-        return false;
-    */
+    /**
+     *
+     * @param filters
+     * @return
+     */
+    public boolean checkFilterGenre(final List<List<String>> filters) {
         boolean ok;
-        if(filters.get(1).get(0) == null) return true;
+        if (filters.get(1).get(0) == null) {
+            return true;
+        }
         List<String> genresList = filters.get(1);
         for (String g1 : genresList) {
             ok = false;
@@ -106,16 +160,27 @@ public abstract class Video {
                     break;
                 }
             }
-            if (!ok) return false;
+            if (!ok) {
+                return false;
+            }
         }
         return true;
     }
 
-    public boolean checkFilters(List<List<String>> filters) {
+    /**
+     *
+     * @param filters
+     * @return
+     */
+    public boolean checkFilters(final List<List<String>> filters) {
         return (checkFilterGenre(filters) && checkFilterYear(filters));
     }
 
-    public void setFavoriteScore(Users users) {
+    /**
+     *
+     * @param users
+     */
+    public void setFavoriteScore(final Users users) {
         int total = 0;
         for (User user : users.getUserList()) {
             if (user.getFavoriteMovies().contains(getTitle())) {
@@ -125,6 +190,10 @@ public abstract class Video {
         this.setFavorite(total);
     }
 
+    /**
+     *
+     * @return
+     */
     public abstract int getDuration();
 }
 

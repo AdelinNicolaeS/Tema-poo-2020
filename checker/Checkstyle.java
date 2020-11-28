@@ -16,8 +16,12 @@ public final class Checkstyle {
      * DO NOT MODIFY
      */
     public void testCheckstyle() {
-        ProcessBuilder processBuilder = new ProcessBuilder("java", "-jar",
-                Constants.JAR_PATH, "-c", Constants.XML_PATH, "./");
+        ProcessBuilder processBuilder = new ProcessBuilder("java",
+                                                           "-jar",
+                                                           Constants.JAR_PATH,
+                                                           "-c",
+                                                           Constants.XML_PATH,
+                                                           "./");
 
         processBuilder.redirectErrorStream(true);
         File log = new File(Constants.CHECKSTYLE_FILE);
@@ -36,7 +40,8 @@ public final class Checkstyle {
             }
             System.out.println("-----------------------------");
             System.out.println("Checkstyle: "
-                    + ((errors <= Constants.MIN_CHECKSTYLE_ERR) ? "Ok" : "Failed"));
+                                       + ((errors <= Constants.MIN_CHECKSTYLE_ERR)
+                    ? "Ok" : "Failed"));
             System.out.println("Checkstyle errors: " + errors);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

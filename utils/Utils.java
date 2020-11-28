@@ -100,8 +100,8 @@ public final class Utils {
 
         for (Object iterator : jsonActors) {
             awards.put(stringToAwards((String) ((JSONObject) iterator).get(Constants.AWARD_TYPE)),
-                    Integer.parseInt(((JSONObject) iterator).get(Constants.NUMBER_OF_AWARDS)
-                            .toString()));
+                       Integer.parseInt(((JSONObject) iterator).get(Constants.NUMBER_OF_AWARDS)
+                                                .toString()));
         }
 
         return awards;
@@ -119,8 +119,8 @@ public final class Utils {
         if (movies != null) {
             for (Object movie : movies) {
                 mapVideos.put((String) ((JSONObject) movie).get(Constants.NAME),
-                        Integer.parseInt(((JSONObject) movie).get(Constants.NUMBER_VIEWS)
-                                .toString()));
+                              Integer.parseInt(((JSONObject) movie).get(Constants.NUMBER_VIEWS)
+                                                       .toString()));
             }
         } else {
             System.out.println("NU ESTE VIZIONAT NICIUN FILM");

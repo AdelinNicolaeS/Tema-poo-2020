@@ -43,6 +43,12 @@ public final class Test {
         }
     }
 
+    /**
+     *
+     * @param filePath1
+     * @param filePath2
+     * @throws IOException
+     */
     public static void action(final String filePath1,
                               final String filePath2) throws IOException {
         InputLoader inputLoader = new InputLoader(filePath1);

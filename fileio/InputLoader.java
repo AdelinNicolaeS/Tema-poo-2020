@@ -118,7 +118,7 @@ public final class InputLoader {
                                     .intValue(),
                             seasons,
                             Integer.parseInt(((JSONObject) jsonIterator).get(Constants.YEAR)
-                                    .toString())
+                                                     .toString())
                     ));
                 }
             } else {
@@ -134,17 +134,19 @@ public final class InputLoader {
                             Utils.convertJSONArray((JSONArray) ((JSONObject) jsonIterator)
                                     .get(Constants.GENRES)),
                             Integer.parseInt(((JSONObject) jsonIterator).get(Constants.YEAR)
-                                    .toString()),
+                                                     .toString()),
                             Integer.parseInt(((JSONObject) jsonIterator).get(Constants.DURATION)
-                                    .toString())
+                                                     .toString())
                     ));
                 }
             } else {
                 System.out.println("NU EXISTA FILME");
             }
 
-            actions = readActions(jsonObject, Math.max(Math.max(movies.size()
-                    + serials.size(), users.size()), actors.size()));
+            actions = readActions(jsonObject,
+                                  Math.max(Math.max(movies.size()
+                                                            + serials.size(),
+                                                    users.size()), actors.size()));
 
             if (jsonActors == null) {
                 actors = null;
@@ -191,12 +193,12 @@ public final class InputLoader {
 
                 if (((JSONObject) jsonIterator).get(Constants.SEASON) != null) {
                     season = Integer.parseInt(((JSONObject) jsonIterator)
-                            .get(Constants.SEASON).toString());
+                                                      .get(Constants.SEASON).toString());
                 }
 
                 if (((JSONObject) jsonIterator).get(Constants.GRADE) != null) {
                     grade = Double.parseDouble(((JSONObject) jsonIterator).get(Constants.GRADE)
-                            .toString());
+                                                       .toString());
                 }
 
                 String genre = null;
@@ -208,7 +210,7 @@ public final class InputLoader {
 
                 if (((JSONObject) jsonIterator).get(Constants.NUMBER) != null) {
                     number = Integer.parseInt(((JSONObject) jsonIterator)
-                            .get(Constants.NUMBER).toString());
+                                                      .get(Constants.NUMBER).toString());
                 } else {
                     number = size;
                 }
@@ -235,7 +237,7 @@ public final class InputLoader {
 
                     case Constants.COMMAND -> actions.add(new ActionInputData(
                             Integer.parseInt(((JSONObject) jsonIterator).get(Constants.ID)
-                                    .toString()),
+                                                     .toString()),
                             actionType,
                             (String) ((JSONObject) jsonIterator).get(Constants.TYPE),
                             (String) ((JSONObject) jsonIterator).get(Constants.USER),
@@ -245,7 +247,7 @@ public final class InputLoader {
                     ));
                     case Constants.QUERY -> actions.add(new ActionInputData(
                             Integer.parseInt(((JSONObject) jsonIterator).get(Constants.ID)
-                                    .toString()),
+                                                     .toString()),
                             actionType,
                             (String) ((JSONObject) jsonIterator).get(Constants.OBJECT),
                             genre,
@@ -258,7 +260,7 @@ public final class InputLoader {
                     ));
                     case Constants.RECOMMENDATION -> actions.add(new ActionInputData(
                             Integer.parseInt(((JSONObject) jsonIterator).get(Constants.ID)
-                                    .toString()),
+                                                     .toString()),
                             actionType,
                             (String) ((JSONObject) jsonIterator).get(Constants.TYPE),
                             (String) ((JSONObject) jsonIterator).get(Constants.USERNAME),

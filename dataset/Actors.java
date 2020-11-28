@@ -12,7 +12,7 @@ public final class Actors {
 
     }
 
-    public Actors(List<Actor> actorsList) {
+    public Actors(final List<Actor> actorsList) {
         this.actorsList.addAll(actorsList);
     }
 
@@ -20,23 +20,34 @@ public final class Actors {
         return actorsList;
     }
 
-    public void setActorsList(List<Actor> actorsList) {
-        this.actorsList = actorsList;
-    }
-
-    public void updateRatings(Movies movies, Serials serials) {
+    /**
+     *
+     * @param movies
+     * @param serials
+     */
+    public void updateRatings(final Movies movies, final Serials serials) {
         for (Actor actor : actorsList) {
             actor.setRating(movies, serials);
         }
     }
+
+    /**
+     *
+     */
     public void setAllNumberOfAwards() {
-        for(Actor actor : actorsList) {
+        for (Actor actor : actorsList) {
             actor.setNumberAwards();
         }
     }
-    public String nameListMessage(int N) {
+
+    /**
+     *
+     * @param n
+     * @return
+     */
+    public String nameListMessage(final int n) {
         List<String> names = new ArrayList<>();
-        for (int i = 0; i < Math.min(N, actorsList.size()); i++) {
+        for (int i = 0; i < Math.min(n, actorsList.size()); i++) {
             names.add(actorsList.get(i).getName());
         }
         return "Query result: " + names.toString();
