@@ -75,9 +75,9 @@ public final class Actor {
     }
 
     /**
-     *
-     * @param movies
-     * @param serials
+     * seteaza rating-ul pentru actorul respectiv
+     * @param movies filmele din baza de date
+     * @param serials serialele din baza de date
      */
     public void setRating(final Movies movies, final Serials serials) {
         double average = 0;
@@ -107,9 +107,9 @@ public final class Actor {
     }
 
     /**
-     *
+     * verifica daca actorul detine toate premiile cerute in filtru
      * @param awardsList
-     * @return
+     * @return 1 daca le are pe toate sau 0, in caz contrar
      */
     public int hasAwards(final List<String> awardsList) {
         int ok = 1;
@@ -129,9 +129,9 @@ public final class Actor {
     }
 
     /**
-     *
-     * @param words
-     * @return
+     * verifica daca toate cuvintele sunt in descrierea actorului
+     * @param words lista de cuvinte pe care le cautam
+     * @return adevarat sau fals, in functie de respectarea conditiei
      */
     public boolean descriptionHasWords(final List<String> words) {
         for (String word : words) {

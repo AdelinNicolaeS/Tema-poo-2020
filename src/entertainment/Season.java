@@ -67,8 +67,8 @@ public final class Season {
     }
 
     /**
-     *
-     * @param grade
+     * calculeaza rating-ul sezonului
+     * @param grade noua nota ce va fi adaugat la medie
      */
     public void updateSeasonRating(final double grade) {
         rating = (numberOfRatings * rating + grade) / (numberOfRatings + 1);

@@ -38,10 +38,10 @@ public final class Serial extends Video {
     }
 
     /**
-     *
+     * recalculeaza rating-ul serialului pe baza notelor sezoanelor
      */
     public void updateSerialRating() {
-        double average = 0;
+        double average = 0; // ratingul serialului e media sezoanelor
         for (Season season : seasons) {
             average += season.getRating();
         }
@@ -51,7 +51,7 @@ public final class Serial extends Video {
 
     @Override
     public int getDuration() {
-        int duration = 0;
+        int duration = 0; // durata sezonului e suma duratelor sezoanelor
         for (Season season : seasons) {
             duration += season.getDuration();
         }

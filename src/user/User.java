@@ -61,16 +61,16 @@ public final class User {
     }
 
     /**
-     *
-     * @return
+     * calculeaza cat de activ a fost utilizatorul
+     * @return numarul total de rating-uri pe care le-a dat user-ul
      */
     public int getNumberRatings() {
         return seasonsWithRating.size() + moviesWithRating.size();
     }
     /**
-     *
-     * @param title
-     * @return
+     * verfica daca utilizatorul a vazut video-ul sau nu
+     * @param title titlul video-ului
+     * @return adevarat sau fals in functie de situatie
      */
     public boolean sawVideo(final String title) {
         for (Map.Entry<String, Integer> entry : history.entrySet()) {
@@ -82,9 +82,9 @@ public final class User {
     }
 
     /**
-     *
-     * @param title
-     * @return
+     * verfica daca un video este deja in lista de favorite sau nu
+     * @param title titlul video-ului la care se face referire
+     * @return adevarat sau fals in functie de situatie
      */
     public boolean hasFavoriteAlready(final String title) {
         for (String parser : favoriteMovies) {
@@ -96,9 +96,9 @@ public final class User {
     }
 
     /**
-     *
-     * @param title
-     * @return
+     * adauga in lista de favorite si obtine mesajul de afisat la out
+     * @param title titlul video-ului la care se face referire
+     * @return mesajul pentru iesire
      */
     public String favoriteMessage(final String title) {
         String message = "";
@@ -114,9 +114,9 @@ public final class User {
     }
 
     /**
-     *
-     * @param title
-     * @return
+     * adauga un video vazut in istoric si afiseaza mesajul la output
+     * @param title titlul video-ului vazut
+     * @return mesajul pentru iesire
      */
     public String viewMessage(final String title) {
         if (sawVideo(title)) {
@@ -128,10 +128,10 @@ public final class User {
     }
 
     /**
-     *
-     * @param title
-     * @param seasonNumber
-     * @return
+     * verifica daca un sezon a primit deja rating
+     * @param title titlul serialului
+     * @param seasonNumber numarul sezonului
+     * @return valoarea de adevar a verificarii cerute
      */
     public boolean hasSeasonRating(final String title, final Integer seasonNumber) {
         for (Map.Entry<String, Integer> entry : seasonsWithRating.entrySet()) {
@@ -143,12 +143,13 @@ public final class User {
     }
 
     /**
-     *
-     * @param title
-     * @param seasonNumber
-     * @param grade
-     * @param serials
-     * @return
+     * se adauga o noua nota unui sezon, se recalculeaza coeficientii si
+     * se afiseaza la tastatura mesajul corespunzator
+     * @param title titlul serialului
+     * @param seasonNumber numarul sezonului
+     * @param grade nota acordata de utilizator
+     * @param serials lista de seriale completa
+     * @return mesajul pentru iesire
      */
     public String ratingSeason(final String title,
                                       final Integer seasonNumber,
@@ -158,7 +159,7 @@ public final class User {
             Serial serial = serials.findSerial(title);
             Season season = serial.getSeasons().get(seasonNumber - 1);
             season.getRatings().add(grade);
-            season.updateSeasonRating(grade);
+            season.updateSeasonRating(grade); // actualizeaza sezonul si serialul
             serial.updateSerialRating();
             seasonsWithRating.put(title, seasonNumber);
             return "success -> " + title + " was rated with " + grade + " by " + username;
@@ -170,9 +171,9 @@ public final class User {
     }
 
     /**
-     *
-     * @param title
-     * @return
+     * verifica daca utilizatorul a dat deja rating unui film
+     * @param title titlul filmului
+     * @return adevarat sau fals
      */
     public boolean hasMovieRating(final String title) {
         for (String string : moviesWithRating) {
@@ -184,11 +185,11 @@ public final class User {
     }
 
     /**
-     *
-     * @param title
-     * @param grade
-     * @param movies
-     * @return
+     * acorda ratin-ul necesar filmului si updateaza atributele
+     * @param title tiltul filmului
+     * @param grade nota pe care user-ul o acorda
+     * @param movies lista completa a filmelor
+     * @return mesajul de afisat la iesire
      */
     public String ratingMovie(final String title, final double grade, final Movies movies) {
         if (sawVideo(title) && !hasMovieRating(title)) {

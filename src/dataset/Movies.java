@@ -25,9 +25,9 @@ public final class Movies {
     }
 
     /**
-     *
-     * @param title
-     * @return
+     * verificam daca un film face parte din baza de date
+     * @param title titlul filmului pe care il cautam
+     * @return filmul daca face parte din lista sau null, in caz contrar
      */
     public Movie findMovie(final String title) {
         for (Movie movie : movieList) {
@@ -39,12 +39,12 @@ public final class Movies {
     }
 
     /**
-     *
-     * @param n
-     * @return
+     * obtine lista de filme ce vor fi afisate conform criteriilor
+     * @param n primele cate filme punem in query
+     * @return mesajul de afisat in output
      */
     public String movieListMessage(final int n) {
-        List<String> names = new ArrayList<>();
+        List<String> names = new ArrayList<>(); // insereaza numele filmelor
         for (int i = 0; i < Math.min(n, movieList.size()); i++) {
             names.add(movieList.get(i).getTitle());
         }
@@ -52,8 +52,9 @@ public final class Movies {
     }
 
     /**
-     *
-     * @param users
+     * recalculeaza numarul de aparitii in lista de favorite pentru
+     * fiecare film
+     * @param users baza de date a utilizatorilor
      */
     public void updateFavoriteScore(final Users users) {
         for (Movie movie : movieList) {
@@ -62,8 +63,8 @@ public final class Movies {
     }
 
     /**
-     *
-     * @param users
+     * recalculeaza numarul de vizualizari pentru fiecare film
+     * @param users baza de date de utilizatori
      */
     public void updateViewsScores(final Users users) {
         for (Movie movie : movieList) {

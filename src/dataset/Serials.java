@@ -20,9 +20,9 @@ public final class Serials {
     }
 
     /**
-     *
-     * @param title
-     * @return
+     * verificam daca un serial e in baza de date sau nu
+     * @param title titlul serialului
+     * @return serialul sau null, daca nu a fost gasit
      */
     public Serial findSerial(final String title) {
         for (Serial serial : serialList) {
@@ -34,9 +34,9 @@ public final class Serials {
     }
 
     /**
-     *
-     * @param n
-     * @return
+     * obtine mesajul de afisat la tastatura
+     * @param n primele cate seriale se afiseaza
+     * @return mesajul de afisat
      */
     public String serialListMessage(final int n) {
         List<String> names = new ArrayList<>();
@@ -47,8 +47,9 @@ public final class Serials {
     }
 
     /**
-     *
-     * @param users
+     * recalculeaza numarul de aparitii in lista de favorite
+     * a userilor pentru fiecare serial
+     * @param users baza de date de utilizatori
      */
     public void updateFavoriteScore(final Users users) {
         for (Serial serial : serialList) {
@@ -57,8 +58,8 @@ public final class Serials {
     }
 
     /**
-     *
-     * @param users
+     * recalculeaza numarul de vizualizari pentru un serial
+     * @param users baza de date de utilizatori
      */
     public void updateViewsScore(final Users users) {
         for (Serial serial : serialList) {

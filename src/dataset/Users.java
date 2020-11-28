@@ -25,9 +25,9 @@ public final class Users {
     }
 
     /**
-     *
-     * @param name
-     * @return
+     * cauta un user in baza de date
+     * @param name numele user-ului cautat
+     * @return user-ul daca e in baza sau null, daca nu e prezent
      */
     public User findUserByName(final String name) {
         for (User user : userList) {
@@ -39,9 +39,9 @@ public final class Users {
     }
 
     /**
-     *
-     * @param n
-     * @return
+     * scrie mesajul de afisat pentru comanda
+     * @param n primii cati useri se afiseaza
+     * @return mesajul pentru output
      */
     public String usersListMessage(final int n) {
         ArrayList<String> usernames = new ArrayList<>();

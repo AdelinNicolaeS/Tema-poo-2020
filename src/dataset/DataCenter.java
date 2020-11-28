@@ -47,8 +47,8 @@ public final class DataCenter {
     }
 
     /**
-     *
-     * @param input
+     * mutam baza de date undeva unde o putem modifica
+     * @param input baza de date initiala
      */
     public void initializeData(final Input input) {
         for (ActorInputData actorInput : input.getActors()) {
@@ -83,11 +83,12 @@ public final class DataCenter {
             users.getUserList().add(user);
         }
         actions = input.getCommands();
-        videos.rebuildList(movies, serials);
+        videos.rebuildList(movies, serials); // construiesc de la 0 videos
     }
 
     /**
-     *
+     * recalculam noi atribute, precum numarul de vizualizari, de prezente
+     * in lista de favorite sau numarul de premii
      */
     public void calculateNewFields() {
         movies.updateFavoriteScore(users);

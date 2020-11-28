@@ -38,14 +38,14 @@ public final class Videos {
     }
 
     /**
-     *
+     * recalculeaza rating-ul de popularitate pentru fiecare video
      */
     public void setPopularGenres() {
-        popularGenres.clear();
+        popularGenres.clear(); // golesc map-ul si il reconstruiesc
         for (Video video : videosList) {
             for (String genre : video.getGenres()) {
                 if (!popularGenres.containsKey(genre)) {
-                    popularGenres.put(genre, video.getViews());
+                    popularGenres.put(genre, video.getViews()); // gen nou
                 } else {
                     popularGenres.put(genre, popularGenres.get(genre) + video.getViews());
                 }
@@ -54,8 +54,8 @@ public final class Videos {
     }
 
     /**
-     *
-     * @return
+     * calculeaza cel mai popular gen
+     * @return cel mai popular gen
      */
     public String mostPopularGenre() {
         int mx = -1;
@@ -70,9 +70,9 @@ public final class Videos {
     }
 
     /**
-     *
-     * @param movies
-     * @param serials
+     * reconstruieste lista de video-uri de la 0
+     * @param movies filmele din baza de date
+     * @param serials serialele din baza de date
      */
     public void rebuildList(final Movies movies, final Serials serials) {
         videosList.clear();
@@ -81,9 +81,9 @@ public final class Videos {
     }
 
     /**
-     *
-     * @param user
-     * @return
+     * calculeaza primul video nevazut
+     * @param user utlizatorul pentru care se face recomandarea
+     * @return mesajul de afisat in fisier
      */
     public String standardRecommendation(final User user) {
         String message = "StandardRecommendation ";
@@ -96,14 +96,14 @@ public final class Videos {
     }
 
     /**
-     *
-     * @param user
-     * @return
+     * calculeaza cel mai bun video nevazut
+     * @param user utilizatorul pentru care se recomanda
+     * @return mesajul pentru out
      */
     public String bestUnseenRecommendation(final User user) {
         Videos videos = new Videos(this.videosList);
-        videos.getVideosList().removeIf((v) -> user.sawVideo(v.getTitle()));
-        if (videos.getVideosList().isEmpty()) {
+        videos.getVideosList().removeIf((v) -> user.sawVideo(v.getTitle())); // elimina ce a vazut
+        if (videos.getVideosList().isEmpty()) { // a vazut deja tot
             return "BestRatedUnseenRecommendation cannot be applied!";
         }
         Video bestUnseenVideo = videos.getVideosList().get(0);
@@ -116,12 +116,12 @@ public final class Videos {
     }
 
     /**
-     *
-     * @param user
-     * @return
+     * obtine primul video nevazut din cel mai popular gen
+     * @param user utilizatorul pentru care se face comanda
+     * @return mesajul pentru iesire
      */
     public String popularRecommendation(final User user) {
-        if (user.getSubscriptionType().equals("BASIC")) {
+        if (user.getSubscriptionType().equals("BASIC")) { // recomandare valabila celor PREMIUM
             return "PopularRecommendation cannot be applied!";
         }
         String popularTitle = null;
@@ -146,9 +146,9 @@ public final class Videos {
     }
 
     /**
-     *
-     * @param user
-     * @return
+     * cauta cel mai des aparut video in lista de favorite
+     * @param user utlizatorul pentru care se recomanda
+     * @return mesajul pentru iesire
      */
     public String favoriteRecommandation(final User user) {
         if (user.getSubscriptionType().equals("BASIC")) {
@@ -172,10 +172,10 @@ public final class Videos {
     }
 
     /**
-     *
-     * @param user
-     * @param genre
-     * @return
+     * scrie toate video-urile nevazute dintr-un anumit gen
+     * @param user utilizatorul pentru care se executa comanda
+     * @param genre genul dat ca filtru in recomandare
+     * @return mesajul ce contine lista de video-uri
      */
     public String searchRecommandation(final User user, final String genre) {
         if (user.getSubscriptionType().equals("BASIC")) {

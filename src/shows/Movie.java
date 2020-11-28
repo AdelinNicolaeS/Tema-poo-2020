@@ -42,8 +42,8 @@ public final class Movie extends Video {
                 + "genres {" + super.getGenres() + " }\n ";
     }
     /**
-     *
-     * @param grade
+     * recalculeaza rating-ul total al filmului
+     * @param grade noua nota cu care se recalculeaza
      */
     public void updateMovieRating(final Double grade) {
         this.setRating((numberOfRatings * this.getRating() + grade) / (numberOfRatings + 1));

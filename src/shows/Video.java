@@ -27,17 +27,13 @@ public abstract class Video {
     private int favorite = 0;
     private int views = 0;
 
-    /**
-     *
-     * @return
-     */
-    public int getViews() {
+    public final int getViews() {
         return views;
     }
 
     /**
-     *
-     * @param users
+     * seteaza numarul de vizualizari pentru un video
+     * @param users utilizatorii existenti
      */
     public void setViewsScore(final Users users) {
         int value = 0;
@@ -49,45 +45,22 @@ public abstract class Video {
         views = value;
     }
 
-    /**
-     *
-     * @return
-     */
-    public int getFavorite() {
+    public final int getFavorite() {
         return favorite;
     }
 
-    /**
-     *
-     * @param favorite
-     */
-    public void setFavorite(final int favorite) {
+    public final void setFavorite(final int favorite) {
         this.favorite = favorite;
     }
 
-    /**
-     *
-     * @return
-     */
-    public double getRating() {
+    public final double getRating() {
         return rating;
     }
 
-    /**
-     *
-     * @param rating
-     */
-    public void setRating(final double rating) {
+    public final void setRating(final double rating) {
         this.rating = rating;
     }
 
-    /**
-     *
-     * @param title
-     * @param year
-     * @param cast
-     * @param genres
-     */
     public Video(final String title, final int year,
                  final ArrayList<String> cast, final ArrayList<String> genres) {
         this.title = title;
@@ -96,45 +69,29 @@ public abstract class Video {
         this.genres = genres;
     }
 
-    /**
-     *
-     * @return
-     */
     public final String getTitle() {
         return title;
     }
 
-    /**
-     *
-     * @return
-     */
     public final int getYear() {
         return year;
     }
 
-    /**
-     *
-     * @return
-     */
     public final ArrayList<String> getCast() {
         return cast;
     }
 
-    /**
-     *
-     * @return
-     */
     public final ArrayList<String> getGenres() {
         return genres;
     }
 
     /**
-     *
-     * @param filters
-     * @return
+     * verifica daca respecta filtrul de an
+     * @param filters lista de filtre cerute
+     * @return adevarat sau fals, daca nu respecta filtrul
      */
     public boolean checkFilterYear(final List<List<String>> filters) {
-        if (filters.get(0).get(0) == null) {
+        if (filters.get(0).get(0) == null) { // daca filtrul nu contine anul
             return true;
         }
         int y = Integer.parseInt(filters.get(0).get(0));
@@ -142,13 +99,13 @@ public abstract class Video {
     }
 
     /**
-     *
-     * @param filters
-     * @return
+     * verifica daca trece filtrul genului
+     * @param filters filtrele cerute la input
+     * @return adevarat sau fals, in functie de rezultat
      */
     public boolean checkFilterGenre(final List<List<String>> filters) {
         boolean ok;
-        if (filters.get(1).get(0) == null) {
+        if (filters.get(1).get(0) == null) { // daca filtrul cu contine genuri
             return true;
         }
         List<String> genresList = filters.get(1);
@@ -168,17 +125,17 @@ public abstract class Video {
     }
 
     /**
-     *
-     * @param filters
-     * @return
+     * verfica daca trece filtrele
+     * @param filters filtrele cerute
+     * @return adevarat sau fals in functie de ce gaseste
      */
     public boolean checkFilters(final List<List<String>> filters) {
         return (checkFilterGenre(filters) && checkFilterYear(filters));
     }
 
     /**
-     *
-     * @param users
+     * obtine numarul de prezente in lista de favorite
+     * @param users baza de date de utilizatori
      */
     public void setFavoriteScore(final Users users) {
         int total = 0;
@@ -192,7 +149,7 @@ public abstract class Video {
 
     /**
      *
-     * @return
+     * @return durata totala a video-ului
      */
     public abstract int getDuration();
 }
