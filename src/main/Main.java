@@ -1,11 +1,11 @@
 package main;
 
+import common.Constants;
 import actor.AwardSortActor;
 import actor.NameSortActor;
 import actor.SortByRating;
 import checker.Checker;
 import checker.Checkstyle;
-import common.Constants;
 import dataset.Actors;
 import dataset.Users;
 import dataset.DataCenter;
@@ -95,137 +95,209 @@ public final class Main {
         DataCenter dataCenter = new DataCenter();
         dataCenter.initializeData(input);
         dataCenter.calculateNewFields();
-
         for (ActionInputData action : input.getCommands()) {
             int id = action.getActionId();
             String message;
-            if (action.getActionType().equals("command")) {
-                User user = dataCenter.getUsers().findUserByName(action.getUsername());
-                if (action.getType().equals("favorite")) {
-                    message = user.favoriteMessage(action.getTitle());
-                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
-                    dataCenter.calculateNewFields();
-                } else if (action.getType().equals("view")) {
-                    message = user.viewMessage(action.getTitle());
-                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
-                    dataCenter.calculateNewFields();
-                } else if (action.getType().equals("rating")) {
-                    String title = action.getTitle();
-                    if (action.getSeasonNumber() != 0) {
-                        Integer seasonNumber = action.getSeasonNumber();
-                        message = user.ratingSeason(title,
-                                                    seasonNumber,
-                                                    action.getGrade(),
-                                                    dataCenter.getSerials());
-                        arrayResult.add(fileWriter.writeFile(id, "csf", message));
-                    } else {
-                        message = user.ratingMovie(title,
-                                                   action.getGrade(),
-                                                   dataCenter.getMovies());
-                        arrayResult.add(fileWriter.writeFile(id, "csf", message));
+            switch (action.getActionType()) {
+                case Constants.COMMAND:
+                    User user = dataCenter.getUsers().findUserByName(action.getUsername());
+                    switch (action.getType()) {
+                        case "favorite" -> {
+                            message = user != null ? user.favoriteMessage(action.getTitle()) : null;
+                            // noinspection unchecked
+                            arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                            dataCenter.calculateNewFields();
+                        }
+                        case "view" -> {
+                            message = user != null ? user.viewMessage(action.getTitle()) : null;
+                            // noinspection unchecked
+                            arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                            dataCenter.calculateNewFields();
+                        }
+                        case "rating" -> {
+                            String title = action.getTitle();
+                            if (action.getSeasonNumber() != 0) {
+                                Integer seasonNumber = action.getSeasonNumber();
+                                if (user != null) {
+                                    message = user.ratingSeason(title,
+                                                                seasonNumber,
+                                                                action.getGrade(),
+                                                                dataCenter.getSerials());
+                                } else  {
+                                    message = null;
+                                }
+                            } else {
+                                if (user != null) {
+                                    message = user.ratingMovie(title,
+                                                               action.getGrade(),
+                                                               dataCenter.getMovies());
+                                } else {
+                                    message = null;
+                                }
+                            }
+                            // noinspection unchecked
+                            arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                            dataCenter.getActors().updateRatings(dataCenter.getMovies(),
+                                                                 dataCenter.getSerials());
+                        }
+                        default -> {
+                            return;
+                        }
                     }
-                    dataCenter.getActors().updateRatings(dataCenter.getMovies(),
-                                                         dataCenter.getSerials());
-                }
 
-            } else if (action.getActionType().equals("query")) {
-                if (action.getObjectType().equals("actors")) {
-                    int number;
-                    Actors actorsTmp = new Actors(dataCenter.getActors().getActorsList());
-                    if (action.getCriteria().equals("average")) {
-                        number = action.getNumber();
-                    } else {
-                        number = actorsTmp.getActorsList().size();
+                    break;
+                case Constants.QUERY:
+                    switch (action.getObjectType()) {
+                        case Constants.ACTORS -> {
+                            int number;
+                            Actors actorsTmp = new Actors(dataCenter.getActors().getActorsList());
+                            if (action.getCriteria().equals("average")) {
+                                number = action.getNumber();
+                            } else {
+                                number = actorsTmp.getActorsList().size();
+                            }
+                            switch (action.getCriteria()) {
+                                case "average" -> {
+                                    actorsTmp.getActorsList().removeIf((v) -> v.getRating() == 0);
+                                    actorsTmp.getActorsList().sort(new SortByRating());
+                                }
+                                case Constants.AWARDS -> {
+                                    List<String> l;
+                                    int pos = action.getFilters().size() - 1;
+                                    l = action.getFilters().get(pos);
+                                    actorsTmp.getActorsList().removeIf((v) -> v.hasAwards(l) == 0);
+                                    actorsTmp.getActorsList().sort(new AwardSortActor());
+                                }
+                                case "filter_description" -> {
+                                    List<String> list = action.getFilters().get(2);
+                                    actorsTmp.getActorsList().removeIf((v) -> !v.descriptionHasWords(list));
+                                    actorsTmp.getActorsList().sort(new NameSortActor());
+                                }
+                                default -> {
+                                    return;
+                                }
+                            }
+                            if (action.getSortType().equals("desc")) {
+                                Collections.reverse(actorsTmp.getActorsList());
+                            }
+                            message = actorsTmp.nameListMessage(number);
+                            // noinspection unchecked
+                            arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                        }
+                        case Constants.MOVIES -> {
+                            Movies moviesTmp = new Movies(dataCenter.getMovies().getMovieList());
+                            moviesTmp.getMovieList().removeIf((v) -> !v.checkFilters(action.getFilters()));
+                            switch (action.getCriteria()) {
+                                case "ratings" -> {
+                                    moviesTmp.getMovieList().removeIf((v) -> v.getRating() == 0);
+                                    moviesTmp.getMovieList().sort(new RatingSort());
+                                }
+                                case "favorite" -> {
+                                    moviesTmp.getMovieList().removeIf((v) -> v.getFavorite() == 0);
+                                    moviesTmp.getMovieList().sort(new FavoriteSort());
+                                }
+                                case "longest" -> moviesTmp.getMovieList().sort(new MovieDurationSort());
+                                case "most_viewed" -> {
+                                    moviesTmp.getMovieList().removeIf((v) -> v.getViews() == 0);
+                                    moviesTmp.getMovieList().sort(new ViewsSort());
+                                }
+                                default -> {
+                                    return;
+                                }
+                            }
+                            if (action.getSortType().equals("desc")) {
+                                Collections.reverse(moviesTmp.getMovieList());
+                            }
+                            message = moviesTmp.movieListMessage(action.getNumber());
+                            // noinspection unchecked
+                            arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                        }
+                        case Constants.SHOWS -> {
+                            Serials serialsTmp = new Serials(dataCenter.getSerials().getSerialList());
+                            List<List<String>> filter = action.getFilters();
+                            serialsTmp.getSerialList().removeIf(((v) -> !v.checkFilters(filter)));
+                            switch (action.getCriteria()) {
+                                case "ratings" -> {
+                                    serialsTmp.getSerialList().removeIf((v) -> v.getRating() == 0);
+                                    serialsTmp.getSerialList().sort(new RatingSort());
+                                }
+                                case "favorite" -> {
+                                    serialsTmp.getSerialList().removeIf((v) -> v.getFavorite() == 0);
+                                    serialsTmp.getSerialList().sort(new FavoriteSort());
+                                }
+                                case "longest" -> serialsTmp.getSerialList().sort(new SerialDurationSort());
+                                case "most_viewed" -> {
+                                    serialsTmp.getSerialList().removeIf((v) -> v.getViews() == 0);
+                                    serialsTmp.getSerialList().sort(new ViewsSort());
+                                }
+                                default -> {
+                                    return;
+                                }
+                            }
+                            if (action.getSortType().equals("desc")) {
+                                Collections.reverse(serialsTmp.getSerialList());
+                            }
+                            message = serialsTmp.serialListMessage(action.getNumber());
+                            // noinspection unchecked
+                            arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                        }
+                        case Constants.USERS -> {
+                            if (!action.getCriteria().equals(Constants.NUM_RATINGS)) {
+                                return;
+                            }
+                            Users usersTmp = new Users(dataCenter.getUsers().getUserList());
+                            usersTmp.getUserList().removeIf((v) -> v.getNumberRatings() == 0);
+                            usersTmp.getUserList().sort(new UsersSort());
+                            if (action.getSortType().equals("desc")) {
+                                Collections.reverse(usersTmp.getUserList());
+                            }
+                            message = usersTmp.usersListMessage(action.getNumber());
+                            // noinspection unchecked
+                            arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                        }
+                        default -> {
+                            return;
+                        }
                     }
-                    if (action.getCriteria().equals("average")) {
-                        actorsTmp.getActorsList().removeIf((v) -> v.getRating() == 0);
-                        actorsTmp.getActorsList().sort(new SortByRating());
-                    } else if (action.getCriteria().equals("awards")) {
-                        List<String> awardsList;
-                        awardsList = action.getFilters().get(action.getFilters().size() - 1);
-                        actorsTmp.getActorsList().removeIf((v) -> v.hasAwards(awardsList) == 0);
-                        actorsTmp.getActorsList().sort(new AwardSortActor());
-                    } else if (action.getCriteria().equals("filter_description")) {
-                        List<String> list = action.getFilters().get(2);
-                        actorsTmp.getActorsList().removeIf((v) -> !v.descriptionHasWords(list));
-                        actorsTmp.getActorsList().sort(new NameSortActor());
-                    }
-                    if (action.getSortType().equals("desc")) {
-                        Collections.reverse(actorsTmp.getActorsList());
-                    }
-                    message = actorsTmp.nameListMessage(number);
-                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
-                } else if (action.getObjectType().equals("movies")) {
-                    Movies moviesTmp = new Movies(dataCenter.getMovies().getMovieList());
-                    moviesTmp.getMovieList().removeIf((v) -> !v.checkFilters(action.getFilters()));
-                    if (action.getCriteria().equals("ratings")) {
-                        moviesTmp.getMovieList().removeIf((v) -> v.getRating() == 0);
-                        moviesTmp.getMovieList().sort(new RatingSort());
-                    } else if (action.getCriteria().equals("favorite")) {
-                        moviesTmp.getMovieList().removeIf((v) -> v.getFavorite() == 0);
-                        moviesTmp.getMovieList().sort(new FavoriteSort());
-                    } else if (action.getCriteria().equals("longest")) {
-                        moviesTmp.getMovieList().sort(new MovieDurationSort());
-                    } else if (action.getCriteria().equals("most_viewed")) {
-                        moviesTmp.getMovieList().removeIf((v) -> v.getViews() == 0);
-                        moviesTmp.getMovieList().sort(new ViewsSort());
-                    }
-                    if (action.getSortType().equals("desc")) {
-                        Collections.reverse(moviesTmp.getMovieList());
-                    }
-                    message = moviesTmp.movieListMessage(action.getNumber());
-                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
-                } else if (action.getObjectType().equals("shows")) {
-                    Serials serialsTmp = new Serials(dataCenter.getSerials().getSerialList());
-                    List<List<String>> filter = action.getFilters();
-                    serialsTmp.getSerialList().removeIf(((v) -> !v.checkFilters(filter)));
-                    if (action.getCriteria().equals("ratings")) {
-                        serialsTmp.getSerialList().removeIf((v) -> v.getRating() == 0);
-                        serialsTmp.getSerialList().sort(new RatingSort());
-                    } else if (action.getCriteria().equals("favorite")) {
-                        serialsTmp.getSerialList().removeIf((v) -> v.getFavorite() == 0);
-                        serialsTmp.getSerialList().sort(new FavoriteSort());
-                    } else if (action.getCriteria().equals("longest")) {
-                        serialsTmp.getSerialList().sort(new SerialDurationSort());
-                    } else if (action.getCriteria().equals("most_viewed")) {
-                        serialsTmp.getSerialList().removeIf((v) -> v.getViews() == 0);
-                        serialsTmp.getSerialList().sort(new ViewsSort());
-                    }
-                    if (action.getSortType().equals("desc")) {
-                        Collections.reverse(serialsTmp.getSerialList());
-                    }
-                    message = serialsTmp.serialListMessage(action.getNumber());
-                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
-                } else if (action.getObjectType().equals("users")) {
-                    Users usersTmp = new Users(dataCenter.getUsers().getUserList());
-                    usersTmp.getUserList().removeIf((v) -> v.getNumberRatings() == 0);
-                    usersTmp.getUserList().sort(new UsersSort());
-                    if (action.getSortType().equals("desc")) {
-                        Collections.reverse(usersTmp.getUserList());
-                    }
-                    message = usersTmp.usersListMessage(action.getNumber());
-                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
-                }
 
-            } else if (action.getActionType().equals("recommendation")) {
-                User userTmp = dataCenter.getUsers().findUserByName(action.getUsername());
-                if (action.getType().equals("standard")) {
-                    message =  dataCenter.getVideos().standardRecommendation(userTmp);
-                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
-                } else if (action.getType().equals("best_unseen")) {
-                    message = dataCenter.getVideos().bestUnseenRecommendation(userTmp);
-                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
-                } else if (action.getType().equals("popular")) {
-                    message = dataCenter.getVideos().popularRecommendation(userTmp);
-                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
-                } else if (action.getType().equals("favorite")) {
-                    message = dataCenter.getVideos().favoriteRecommandation(userTmp);
-                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
-                } else if (action.getType().equals("search")) {
-                    String genre = action.getGenre();
-                    message = dataCenter.getVideos().searchRecommandation(userTmp, genre);
-                    arrayResult.add(fileWriter.writeFile(id, "csf", message));
-                }
+                    break;
+                case Constants.RECOMMENDATION:
+                    User userTmp = dataCenter.getUsers().findUserByName(action.getUsername());
+                    assert userTmp != null;
+                    switch (action.getType()) {
+                        case "standard" -> {
+                            message = dataCenter.getVideos().standardRecommendation(userTmp);
+                            // noinspection unchecked
+                            arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                        }
+                        case "best_unseen" -> {
+                            message = dataCenter.getVideos().bestUnseenRecommendation(userTmp);
+                            // noinspection unchecked
+                            arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                        }
+                        case "popular" -> {
+                            message = dataCenter.getVideos().popularRecommendation(userTmp);
+                            // noinspection unchecked
+                            arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                        }
+                        case "favorite" -> {
+                            message = dataCenter.getVideos().favoriteRecommandation(userTmp);
+                            // noinspection unchecked
+                            arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                        }
+                        case "search" -> {
+                            String genre = action.getGenre();
+                            message = dataCenter.getVideos().searchRecommandation(userTmp, genre);
+                            // noinspection unchecked
+                            arrayResult.add(fileWriter.writeFile(id, "csf", message));
+                        }
+                        default -> {
+                            return;
+                        }
+                    }
+                    break;
+                default:
+                    return;
             }
         }
         fileWriter.closeJSON(arrayResult);

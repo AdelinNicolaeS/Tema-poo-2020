@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Actors {
-    private List<Actor> actorsList = new ArrayList<>();
+    private final List<Actor> actorsList = new ArrayList<>();
 
     public Actors() {
 

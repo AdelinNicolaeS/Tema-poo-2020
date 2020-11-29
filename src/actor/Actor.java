@@ -6,6 +6,7 @@ import dataset.Serials;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public final class Actor {
@@ -83,13 +84,16 @@ public final class Actor {
         double average = 0;
         int count = 0;
         for (String video : filmography) {
-            if (movies.findMovie(video) != null && movies.findMovie(video).getRating() > 0) {
-                average += movies.findMovie(video).getRating();
-                count++;
+
+            if (movies.findMovie(video) != null)  {
+                if (Objects.requireNonNull(movies.findMovie(video)).getRating() > 0) {
+                    average += Objects.requireNonNull(movies.findMovie(video)).getRating();
+                    count++;
+                }
             } else {
                 boolean x1 = (serials.findSerial(video) != null);
-                if (x1 && serials.findSerial(video).getRating() > 0) {
-                    average += serials.findSerial(video).getRating();
+                if (x1 && Objects.requireNonNull(serials.findSerial(video)).getRating() > 0) {
+                    average += Objects.requireNonNull(serials.findSerial(video)).getRating();
                     count++;
                 }
             }
@@ -108,7 +112,7 @@ public final class Actor {
 
     /**
      * verifica daca actorul detine toate premiile cerute in filtru
-     * @param awardsList
+     * @param awardsList lista de premii verificate
      * @return 1 daca le are pe toate sau 0, in caz contrar
      */
     public int hasAwards(final List<String> awardsList) {

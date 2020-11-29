@@ -1,10 +1,6 @@
 package main;
 
 import common.Constants;
-import fileio.Input;
-import fileio.InputLoader;
-import fileio.Writer;
-import org.json.simple.JSONArray;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,21 +39,5 @@ public final class Test {
         }
     }
 
-    /**
-     *
-     * @param filePath1
-     * @param filePath2
-     * @throws IOException
-     */
-    public static void action(final String filePath1,
-                              final String filePath2) throws IOException {
-        InputLoader inputLoader = new InputLoader(filePath1);
-        Input input = inputLoader.readData();
 
-        Writer fileWriter = new Writer(filePath2);
-        JSONArray arrayResult = new JSONArray();
-
-
-        fileWriter.closeJSON(arrayResult);
-    }
 }
